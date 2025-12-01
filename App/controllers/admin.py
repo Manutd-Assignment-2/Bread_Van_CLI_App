@@ -1,75 +1,88 @@
-from App.models import Admin, Driver, Area, Street, Item
 from App.database import db
+from App.models.admin import Admin
+from App.models.driver import Driver
+from App.models.area import Area
+from App.models.street import Street
+from sqlalchemy.exc import IntegrityError
 
-# All admin-related business logic will be moved here as functions
+class AdminController:
+    @staticmethod
+    def create_driver(username: str, password: str, status: str = "Offline", area_id: int = None, street_id: int = None):
+        d = Driver(username=username, password=password, status=status, area_id=area_id, street_id=street_id)
+        try:
+            db.session.add(d)
+            db.session.commit()
+            return d
+        except IntegrityError:
+            db.session.rollback()
+            raise
 
-def admin_create_driver(username, password):
-    existing_user = Admin.query.filter_by(username=username).first()
-    if existing_user:
-        raise ValueError("Username already taken.")
-    driver = Driver(username=username, password=password, status="Offline", areaId=0, streetId=None)
-    db.session.add(driver)
-    db.session.commit()
-    return driver
+    @staticmethod
+    def delete_driver(driver_id: int):
+        driver = Driver.query.get(driver_id)
+        if not driver:
+            return False
+        try:
+            db.session.delete(driver)
+            db.session.commit()
+            return True
+        except Exception:
+            db.session.rollback()
+            return False
 
-def admin_delete_driver(driver_id):
-    driver = Driver.query.get(driver_id)
-    if not driver:
-        raise ValueError("Invalid driver ID.")
-    db.session.delete(driver)
-    db.session.commit()
-    return driver
+    @staticmethod
+    def add_area(name: str):
+        a = Area(name=name)
+        try:
+            db.session.add(a)
+            db.session.commit()
+            return a
+        except IntegrityError:
+            db.session.rollback()
+            raise
 
-def admin_add_area(name):
-    area = Area(name=name)
-    db.session.add(area)
-    db.session.commit()
-    return area
+    @staticmethod
+    def delete_area(area_id: int):
+        a = Area.query.get(area_id)
+        if not a: return False
+        try:
+            db.session.delete(a)
+            db.session.commit()
+            return True
+        except Exception:
+            db.session.rollback()
+            return False
 
-def admin_add_street(area_id, name):
-    area = Area.query.get(area_id)
-    if not area:
-        raise ValueError("Invalid area ID.")
-    street = Street(name=name, areaId=area_id)
-    db.session.add(street)
-    db.session.commit()
-    return street
+    @staticmethod
+    def add_street(area_id: int, name: str):
+        area = Area.query.get(area_id)
+        if not area:
+            return None
+        s = Street(name=name, area_id=area_id)
+        try:
+            db.session.add(s)
+            db.session.commit()
+            return s
+        except IntegrityError:
+            db.session.rollback()
+            raise
 
-def admin_add_item(name, price, description, tags):
-    item = Item(name=name, price=price, description=description, tags=tags)
-    db.session.add(item)
-    db.session.commit()
-    return item
+    @staticmethod
+    def delete_street(street_id: int):
+        s = Street.query.get(street_id)
+        if not s: return False
+        try:
+            db.session.delete(s)
+            db.session.commit()
+            return True
+        except Exception:
+            db.session.rollback()
+            return False
 
-def admin_delete_area(area_id):
-    area = Area.query.get(area_id)
-    if not area:
-        raise ValueError("Invalid area ID.")
-    db.session.delete(area)
-    db.session.commit()
+    @staticmethod
+    def view_all_areas():
+        return Area.query.all()
 
-def admin_delete_street(area_id, street_id):
-    area = Area.query.get(area_id)
-    if not area:
-        raise ValueError("Invalid area ID.")
-    street = Street.query.filter_by(areaId=area_id).get(street_id)
-    if not street:
-        raise ValueError("Invalid street ID.")
-    db.session.delete(street)
-    db.session.commit()
-
-def admin_delete_item(item_id):
-    item = Item.query.get(item_id)
-    if not item:
-        raise ValueError("Invalid item ID.")
-    db.session.delete(item)
-    db.session.commit()
-
-def admin_view_all_areas():
-    return Area.query.all()
-
-def admin_view_all_streets():
-    return Street.query.all()
-
-def admin_view_all_items():
-     return Item.query.all()
+    @staticmethod
+    def view_all_streets():
+        return Street.query.all()

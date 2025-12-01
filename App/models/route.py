@@ -10,7 +10,8 @@ class Route(db.Model):
     scheduled_time = db.Column(db.Time, nullable=True)
     scheduled_area = db.Column(db.String(100), nullable=True)
     scheduled_street = db.Column(db.String(100), nullable=True)
-
+    eta = db.Column(db.String(50))   
+    menu = db.Column(db.JSON) 
     stops = db.relationship('Stop', back_populates='route', cascade='all, delete-orphan', lazy='joined')
     driver = db.relationship('Driver', back_populates='routes')
 

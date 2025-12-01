@@ -6,11 +6,11 @@ class Notification(db.Model):
     __tablename__ = "notification"
 
     id = db.Column(db.Integer, primary_key=True)
-    resident_id = db.Column(db.Integer, db.ForeignKey('resident.id'), nullable=False)
+    residentId = db.Column(db.Integer, db.ForeignKey('resident.id'), nullable=False)
     message = db.Column(db.String(255), nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
-    resident = db.relationship("Resident", back_populates="notifications")
+    resident = db.relationship("Resident", backref="notifications")
 
     def __init__(self, resident_id: int, message: str):
         self.resident_id = resident_id

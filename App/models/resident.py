@@ -34,23 +34,17 @@ class Resident(db.Model, Observer):
     def update(self, subject, message: str):
         self.receive_notif(message)
 
-    def receive_notif(self, message: str) -> None:
-        if self.inbox is None:
-            self.inbox = []
-        if len(self.inbox) >= MAX_INBOX_SIZE:
-            self.inbox.pop(0)
-        timestamp = datetime.utcnow().strftime("%Y:%m:%d:%H:%M:%S")
-        notif = f"[{timestamp}]: {message}"
-        self.inbox.append(notif)
-        # persist a Notification object as well for history
-        try:
-            from .notification import Notification
-            n = Notification(resident_id=self.id, message=message)
-            db.session.add(self)
-            db.session.add(n)
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+def receive_notif(self, message):
+    notif = Notification(residentId=self.id, message=message)
+    db.session.add(notif)
+    
+    # Keep inbox in JSON too
+    timestamp = datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
+    if self.inbox is None:
+        self.inbox = []
+    self.inbox.append(f"[{timestamp}] {message}")
+
+    db.session.commit()
 
     def get_json(self) -> Dict:
         from .user import User
