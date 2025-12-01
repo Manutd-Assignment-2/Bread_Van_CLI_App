@@ -4,5 +4,4 @@ class Observer(ABC):
 
     @abstractmethod
     def update(self, subject, message: str):
-        
         pass
