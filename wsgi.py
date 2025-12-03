@@ -407,18 +407,19 @@ def end_drive_command():
         print(str(e))
 
 @driver_cli.command("view_requested_stops", help="View requested stops for a drive")
-@click.argument("driveId")
-def view_requested_stops_command(driveId):
+@click.argument("drive_id")
+def view_requested_stops_command(drive_id):
     driver = require_driver()
     if not driver:
         return
-    stops = driver_view_requested_stops(driver, driveId)
+    stops = driver_view_requested_stops(driver, drive_id)
     if not stops:
         print("No requested stops for this drive.")
         return
     print(f"\nRequested Stops from {stops[0].drive.street.name}, {stops[0].drive.area.name}:")
     for stop in stops:
         print(f"#{stop.resident.houseNumber} \tResident: {stop.resident.username}")
+
 
 
 app.cli.add_command(driver_cli)
